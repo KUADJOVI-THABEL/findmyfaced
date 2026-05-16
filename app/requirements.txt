@@ -1,0 +1,6 @@
+Django>=5.0
+psycopg2-binary
+pgvector
+boto3
+django-storages
+pillow
