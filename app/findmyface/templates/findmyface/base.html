@@ -1,0 +1,78 @@
+{% load static tailwind_tags %}
+{% load lucide_tags %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Find My Face</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% tailwind_css %}
+</head>
+
+<body class="font-sans antialiased">
+
+    <div class="root">
+        <!-- templates/partials/header.html -->
+
+        <header class="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-4">
+
+                <div class="flex items-center gap-2 justify-between">
+
+                    <!-- Logo -->
+                    <a href="/" class="flex gap-2 items-center">
+                        {% lucide "sparkles" class="h-6 w-6 text-primary" %}
+                        <h1 class="text-xl font-bold">FaceFind</h1>
+                    </a>
+
+                    <!-- Auth buttons -->
+                    <div>
+                        {% if user.is_authenticated %}
+
+                        <form method="post" action="/" class="inline">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="inline-block rounded-sm border px-5 py-1.5 text-lg leading-normal">
+                                Logout
+                            </button>
+                        </form>
+
+                        {% else %}
+
+                        <a href="/"
+                            class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-lg leading-normal">
+                            Log in
+                        </a>
+
+                        <a href="#"
+                            class="inline-block rounded-sm border px-5 py-1.5 text-lg leading-normal">
+                            Register
+                        </a>
+
+                        {% endif %}
+                    </div>
+
+                </div>
+
+            </div>
+        </header>
+
+        
+        <main class="container mx-auto px-4 py-8">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <footer class="border-t mt-24 py-8">
+            <div class="container mx-auto px-4 text-center text-sm text-muted-foreground">
+                <p>© 2025 FaceFind - Service de reconnaissance faciale pour événements</p>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

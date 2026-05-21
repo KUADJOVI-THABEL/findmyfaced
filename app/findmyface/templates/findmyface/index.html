@@ -1,0 +1,84 @@
+{% extends "findmyface/base.html" %}
+{% load lucide_tags %}
+{% block title %}FaceFind{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto text-center mb-16">
+  <h2 class="text-5xl font-bold mb-6 text-balance">Retrouvez vos photos d'événements en un instant</h2>
+  <p class="text-xl text-muted-foreground text-balance mb-8">
+    Grâce à la reconnaissance faciale, trouvez toutes vos photos d'événements automatiquement
+  </p>
+</div>
+
+<!-- {/* Role Selection Cards */} -->
+<div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+  <!-- {/* Producer Card */} -->
+  <div class="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-base shadow-xs">
+
+    <div class="flex flex-col items-center text-center gap-6">
+      <div class="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+        {% lucide "camera" class="h-6 w-6 text-primary" %}
+
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold mb-2">Producer</h3>
+        <p class="text-muted-foreground mb-6">Vous êtes photographe ? Uploadez vos photos d'événements</p>
+      </div>
+      <a href="/producer"
+        class="inline-flex items-center text-white bg-primary box-border border border-transparent hover:bg-primary/80 focus:ring-4 focus:ring-primary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none rounded-lg">
+
+        Accéder à l'espace Producer
+      </a>
+    </div>
+  </div>
+
+  <!-- {/* Consumer Card */} -->
+  <div class="bg-neutral-primary-soft block max-w-sm p-6 border border-default rounded-base shadow-xs">
+    <div class="flex flex-col items-center text-center gap-6">
+      <div class="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+        {% lucide "user" class="h-6 w-6 text-primary" %}
+      </div>
+      <div>
+        <h3 class="text-2xl font-bold mb-2">Consumer</h3>
+        <p class="text-muted-foreground mb-6">
+          Vous cherchez vos photos ? Trouvez-les par reconnaissance faciale
+        </p>
+      </div>
+
+      <a href="#"
+        class="inline-flex items-center text-white bg-primary box-border border border-transparent hover:bg-primary/80 focus:ring-4 focus:ring-primary shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none rounded-lg">
+        Accéder à l'espace Consumer
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<!-- {/* Features Section */} -->
+<div class="mt-24 max-w-4xl mx-auto">
+  <h3 class="text-3xl font-bold text-center mb-12">Comment ça marche ?</h3>
+  <div class="grid md:grid-cols-3 gap-8">
+    <div class="text-center">
+      <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+        <span class="text-xl font-bold text-primary">1</span>
+      </div>
+      <h4 class="font-semibold mb-2">Upload</h4>
+      <p class="text-sm text-muted-foreground">Les photographes uploadent les photos de l'événement</p>
+    </div>
+    <div class="text-center">
+      <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+        <span class="text-xl font-bold text-primary">2</span>
+      </div>
+      <h4 class="font-semibold mb-2">Analyse</h4>
+      <p class="text-sm text-muted-foreground">Notre IA analyse automatiquement tous les visages</p>
+    </div>
+    <div class="text-center">
+      <div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+        <span class="text-xl font-bold text-primary">3</span>
+      </div>
+      <h4 class="font-semibold mb-2">Trouvez</h4>
+      <p class="text-sm text-muted-foreground">Uploadez votre photo et retrouvez toutes vos photos</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
