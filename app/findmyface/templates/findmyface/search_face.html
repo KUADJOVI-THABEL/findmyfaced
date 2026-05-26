@@ -1,0 +1,279 @@
+{% extends "layout/base.html" %}
+{% block title %}Search Photos{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+
+  <!-- Back Button -->
+  <a href="#"
+     class="inline-flex items-center gap-2 mb-4 rounded-md px-3 py-1.5 text-sm font-medium text-primary hover:bg-gray-100 transition-colors">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+    </svg>
+    Back to Event
+  </a>
+
+  <h2 class="text-3xl font-bold tracking-tight">Search Photos</h2>
+  <p class="text-gray-500 mt-1 mb-8">Upload a face photo to find matching photos from this event.</p>
+
+  <div class="grid gap-10 lg:grid-cols-3">
+
+    <!-- Upload Panel -->
+    <div class="lg:col-span-1">
+      <div class="sticky top-24 rounded-lg border border-default bg-neutral-primary-soft shadow-sm">
+        <div class="flex flex-col space-y-1.5 p-6">
+          <h3 class="text-lg font-semibold leading-none tracking-tight">Upload a Face Photo</h3>
+          <p class="text-sm text-gray-500">We'll find all matching photos from the event.</p>
+        </div>
+
+        <div class="p-6 pt-0 space-y-4">
+
+          <!-- Preview -->
+          <div id="preview-container" class="hidden">
+            <div class="relative aspect-square w-full rounded-lg overflow-hidden border border-default">
+              <img id="preview-img" src="" alt="Preview" class="w-full h-full object-cover" />
+              <button type="button" id="remove-preview"
+                      class="absolute top-2 right-2 h-6 w-6 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </button>
+            </div>
+            <p id="preview-name" class="text-xs text-gray-500 mt-1 truncate"></p>
+          </div>
+
+          <!-- Drop zone -->
+          <label id="drop-zone"
+                 class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400 mb-2" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <span class="text-sm text-gray-500">Click to select a photo</span>
+            <span class="text-xs text-gray-400 mt-1">JPG, PNG, WEBP</span>
+            <input id="file-input" type="file" accept="image/*" class="hidden" />
+          </label>
+
+          <!-- Error -->
+          <div id="error-box" class="hidden p-3 bg-red-50 border border-red-200 rounded-lg">
+            <p id="error-msg" class="text-sm text-red-600"></p>
+          </div>
+
+          <!-- Submit -->
+          <button id="search-btn" disabled
+                  class="inline-flex items-center justify-center w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+            </svg>
+            <span id="search-btn-label">Search Photos</span>
+          </button>
+
+          <!-- Progress -->
+          <div id="progress-panel" class="hidden space-y-2">
+            <div class="flex justify-between text-sm text-gray-500">
+              <span>Searching...</span>
+              <span id="progress-label">0%</span>
+            </div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div id="progress-bar" class="h-full bg-primary transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div class="lg:col-span-2">
+      <div id="results-panel">
+
+        <!-- Empty state -->
+        <div id="empty-state" class="flex flex-col items-center justify-center h-64 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300 mb-4" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <p class="text-gray-500 font-medium">No search yet</p>
+          <p class="text-gray-400 text-sm mt-1">Upload a face photo to find matches.</p>
+        </div>
+
+        <!-- Results header + grid (hidden until search) -->
+        <div id="results-content" class="hidden">
+          <h3 class="text-2xl font-bold tracking-tight mb-4">
+            Results <span id="results-count" class="text-gray-400 font-normal text-lg"></span>
+          </h3>
+          <div id="results-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- No matches state -->
+        <div id="no-matches" class="hidden flex flex-col items-center justify-center h-64 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300 mb-4" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/>
+            <line x1="18" y1="6" x2="22" y2="10"/><line x1="22" y1="6" x2="18" y2="10"/>
+          </svg>
+          <p class="text-gray-500 font-medium">No matches found</p>
+          <p class="text-gray-400 text-sm mt-1">Try a clearer or more front-facing photo.</p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  {{ event.id|json_script:"event-id-data" }}
+
+</div>
+
+<script>
+  const fileInput      = document.getElementById('file-input');
+  const dropZone       = document.getElementById('drop-zone');
+  const previewCont    = document.getElementById('preview-container');
+  const previewImg     = document.getElementById('preview-img');
+  const previewName    = document.getElementById('preview-name');
+  const removePreview  = document.getElementById('remove-preview');
+  const searchBtn      = document.getElementById('search-btn');
+  const searchBtnLbl   = document.getElementById('search-btn-label');
+  const progressPanel  = document.getElementById('progress-panel');
+  const progressBar    = document.getElementById('progress-bar');
+  const progressLbl    = document.getElementById('progress-label');
+  const errorBox       = document.getElementById('error-box');
+  const errorMsg       = document.getElementById('error-msg');
+  const emptyState     = document.getElementById('empty-state');
+  const resultsContent = document.getElementById('results-content');
+  const resultsCount   = document.getElementById('results-count');
+  const resultsGrid    = document.getElementById('results-grid');
+  const noMatches      = document.getElementById('no-matches');
+
+  let selectedFile = null;
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorBox.classList.remove('hidden');
+  }
+
+  function hideError() {
+    errorBox.classList.add('hidden');
+  }
+
+  function setFile(file) {
+    if (!file || !file.type.startsWith('image/')) {
+      showError('Please select a valid image file.');
+      return;
+    }
+    hideError();
+    selectedFile = file;
+    previewName.textContent = file.name;
+    previewImg.src = URL.createObjectURL(file);
+    previewCont.classList.remove('hidden');
+    dropZone.classList.add('hidden');
+    searchBtn.disabled = false;
+  }
+
+  function clearFile() {
+    selectedFile = null;
+    fileInput.value = '';
+    previewImg.src = '';
+    previewCont.classList.add('hidden');
+    dropZone.classList.remove('hidden');
+    searchBtn.disabled = true;
+    hideError();
+  }
+
+  function setSearching(state) {
+    searchBtn.disabled = state;
+    searchBtnLbl.textContent = state ? 'Searching...' : 'Search Photos';
+    progressPanel.classList.toggle('hidden', !state);
+  }
+
+  function renderResults(photos) {
+    emptyState.classList.add('hidden');
+    noMatches.classList.add('hidden');
+
+    if (!photos.length) {
+      noMatches.classList.remove('hidden');
+      resultsContent.classList.add('hidden');
+      return;
+    }
+
+    resultsCount.textContent = `(${photos.length} match${photos.length > 1 ? 'es' : ''})`;
+    resultsGrid.innerHTML = photos.map(photo => `
+      <div class="relative aspect-square rounded-lg overflow-hidden group border border-default">
+        <img src="${photo.url}" alt="${photo.file_name || 'Match'}"
+             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+        <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2
+                    opacity-0 group-hover:opacity-100 transition-opacity truncate">
+          ${photo.file_name || ''}
+        </div>
+      </div>
+    `).join('');
+
+    resultsContent.classList.remove('hidden');
+  }
+
+  // ── file input ────────────────────────────────────────
+  fileInput.addEventListener('change', () => setFile(fileInput.files[0]));
+  removePreview.addEventListener('click', clearFile);
+
+  // ── drag and drop ─────────────────────────────────────
+  dropZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    dropZone.classList.add('border-primary');
+  });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-primary'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('border-primary');
+    setFile(e.dataTransfer.files[0]);
+  });
+    const eventId = JSON.parse(document.getElementById('event-id-data').textContent);
+
+  // ── search ────────────────────────────────────────────
+  searchBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+    hideError();
+    setSearching(true);
+
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+    formData.append('photo', selectedFile);
+
+    const xhr = new XMLHttpRequest();
+        xhr.open('POST', `/search-face/${eventId}/`);
+
+
+    xhr.upload.addEventListener('progress', e => {
+      if (e.lengthComputable) {
+        const pct = Math.round((e.loaded / e.total) * 100);
+        progressBar.style.width = pct + '%';
+        progressLbl.textContent = pct + '%';
+      }
+    });
+
+    xhr.addEventListener('load', () => {
+      setSearching(false);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          renderResults(data.photos); // expects { photos: [{url, file_name}, ...] }
+        } catch {
+          showError('Unexpected response from server.');
+        }
+      } else {
+        showError('Search failed. Please try again.');
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      setSearching(false);
+      showError('Network error. Please try again.');
+    });
+
+    xhr.send(formData);
+  });
+</script>
+{% endblock %}

@@ -73,6 +73,9 @@ def upload_photo(request, event_id):
     
     return render(request, 'findmyface/upload_photos.html', {'event_id': event_id})
 
-def search_face(request):
+def search_face(request,event_id):
     # Handle face search logic here
-    return HttpResponse("Search Face - To be implemented")
+    if request.method == 'POST':
+        # Process the uploaded photo and perform face search
+        pass
+    return render(request, 'findmyface/search_face.html', {'event_id': event_id})
