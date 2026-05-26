@@ -147,3 +147,35 @@ TAILWIND_APP_NAME = "theme"
 
 LOGIN_REDIRECT_URL = "index"  # Name of the URL pattern to redirect to after login
 LOGOUT_REDIRECT_URL = "login" # Redirect back to login page after logout
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+USE_S3 = False  # Set to True to use S3, False to use local storage
+
+if USE_S3:
+    # 1. AWS S3 Configuration
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "bucket_name": "your-my-bucket-name",
+                "region_name": "us-east-1",
+                "access_key": "YOUR_AWS_ACCESS_KEY",
+                "secret_key": "YOUR_AWS_SECRET_KEY",
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+else:
+    # 2. Local Storage Configuration
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }

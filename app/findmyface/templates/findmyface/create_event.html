@@ -3,7 +3,13 @@
 {% block title %}FaceFind{% endblock %}
 
 {% block content %}
+<!-- 
+This is a form to create an event, with the following fields:
+- Event Name (required)
+- Event Date (required)
+- Event Description (optional)
 
+Value is passed to the template in a variable named "form", which is an instance of EventCreationForm. The form is rendered manually, with error messages displayed below each field if there are validation errors. -->
 <div class="max-w-2xl mx-auto">
 
     <!-- Back Button -->
@@ -18,7 +24,8 @@
     </a>
 
     <!-- Card -->
-    <div class="rounded-lg border bg-neutral-primary-soft border-default shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div
+        class="rounded-lg border bg-neutral-primary-soft border-default shadow-sm dark:border-gray-700 dark:bg-gray-800">
 
         <!-- Card Header -->
         <div class="flex flex-col space-y-1.5 p-6">
@@ -38,7 +45,7 @@
                     </label>
                     <input id="event-name" type="text" name="event_name" value="{{ form.event_name.value|default:'' }}"
                         placeholder="e.g., Wedding of John and Jane" required
-                      class="block w-full rounded-md bg-transparent px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                        class="block w-full rounded-md bg-transparent px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
                     {% if form.event_name.errors %}
                     <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.event_name.errors|join:", " }}</p>
                     {% endif %}
@@ -51,7 +58,7 @@
                     </label>
                     <input id="event-date" type="date" name="event_date" value="{{ form.event_date.value|default:'' }}"
                         required
-class="block w-full rounded-md bg-transparent px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                        class="block w-full rounded-md bg-transparent px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
                     {% if form.event_date.errors %}
                     <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.event_date.errors|join:", " }}</p>
                     {% endif %}
@@ -85,6 +92,11 @@ class="block w-full rounded-md bg-transparent px-3 py-1.5 text-base text-white o
                 </div>
 
             </form>
+            {% if form.errors %}
+            <p style="color: red;">
+                {{ form.errors|join:", " }}
+            </p>
+            {% endif %}
         </div>
     </div>
 

@@ -27,19 +27,21 @@ class Event(models.Model):
         return self.event_name
 
 
+def get_upload_path(instance, filename):
+    # This generates exactly: events/<id>/original/<filename>
+    return f"events/{instance.event.id}/original/{filename}"
+
 class Photo(models.Model):
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
         related_name='photos'
     )
-
     filename = models.CharField(max_length=255)
-
     # S3 object key
     # example:
     # events/12/original/photo1.jpg
-    s3_key = models.CharField(max_length=500)
+    file = models.FileField(upload_to=get_upload_path, max_length=500)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
@@ -55,7 +57,6 @@ class FaceEmbedding(models.Model):
         on_delete=models.CASCADE,
         related_name='faces'
     )
-
     # ArcFace / InsightFace usually use 512 dimensions
     embedding = models.JSONField()
     # Face order inside the image
