@@ -143,3 +143,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TAILWIND_APP_NAME = "theme"
+
+
+LOGIN_REDIRECT_URL = "index"  # Name of the URL pattern to redirect to after login
+LOGOUT_REDIRECT_URL = "login" # Redirect back to login page after logout

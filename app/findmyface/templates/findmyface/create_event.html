@@ -1,0 +1,94 @@
+{% extends "layout/base.html" %}
+{% load lucide_tags %}
+{% block title %}FaceFind{% endblock %}
+
+{% block content %}
+
+<div class="max-w-2xl mx-auto">
+
+    <!-- Back Button -->
+    <a href="#"
+        class="inline-flex items-center gap-2 mb-4 rounded-md px-3 py-1.5 text-sm font-medium text-primary hover:bg-gray-100 hover:text-gray-900 transition-colors dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 19-7-7 7-7" />
+            <path d="M19 12H5" />
+        </svg>
+        Back to Dashboard
+    </a>
+
+    <!-- Card -->
+    <div class="rounded-lg border bg-neutral-primary-soft border-default shadow-sm dark:border-gray-700 dark:bg-gray-800">
+
+        <!-- Card Header -->
+        <div class="flex flex-col space-y-1.5 p-6">
+            <h2 class="text-2xl font-semibold leading-none tracking-tight">Create a New Event</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Fill in the details below to set up your new event.</p>
+        </div>
+
+        <!-- Card Content -->
+        <div class="p-6 pt-0">
+            <form method="POST" action="#" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Event Name -->
+                <div class="space-y-2">
+                    <label for="event-name" class="text-sm font-medium leading-none text-white dark:text-gray-100">
+                        Event Name *
+                    </label>
+                    <input id="event-name" type="text" name="event_name" value="{{ form.event_name.value|default:'' }}"
+                        placeholder="e.g., Wedding of John and Jane" required
+                      class="block w-full rounded-md bg-transparent px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                    {% if form.event_name.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.event_name.errors|join:", " }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Event Date -->
+                <div class="space-y-2">
+                    <label for="event-date" class="text-sm font-medium leading-none text-white dark:text-gray-100">
+                        Event Date *
+                    </label>
+                    <input id="event-date" type="date" name="event_date" value="{{ form.event_date.value|default:'' }}"
+                        required
+class="block w-full rounded-md bg-transparent px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                    {% if form.event_date.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.event_date.errors|join:", " }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Event Description -->
+                <div class="space-y-2">
+                    <label for="event-description"
+                        class="text-sm font-medium leading-none text-white dark:text-gray-100">
+                        Description (Optional)
+                    </label>
+                    <textarea id="event-description" name="event_description" placeholder="Describe the event..."
+                        rows="4"
+                        class="block w-full rounded-md bg-transparent px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6">{{ form.event_description.value|default:'' }}</textarea>
+                    {% if form.event_description.errors %}
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-400">{{ form.event_description.errors|join:", " }}
+                    </p>
+                    {% endif %}
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 pt-4">
+                    <a href="#"
+                        class="inline-flex items-center justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors dark:border-gray-600 dark:bg-transparent dark:text-gray-300 dark:hover:bg-gray-700">
+                        Cancel
+                    </a>
+                    <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors disabled:opacity-50 hover:cursor-pointer">
+                        Create Event
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}
