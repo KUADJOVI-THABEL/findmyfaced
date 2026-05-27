@@ -11,4 +11,7 @@ urlpatterns = [
 
     # Authentication URLs
     path("login/", views.login_view, name="login"),
+
+    # Donwload ZIP of all photos for an event
+    path('photos/download-zip/<int:event_id>/', views.download_event_photos_zip, name='download_event_photos_zip'),
 ]
