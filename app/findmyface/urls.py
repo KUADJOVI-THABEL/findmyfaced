@@ -8,4 +8,7 @@ urlpatterns = [
     path("producer/create-event/", views.create_event, name="create_event"),
     path("producer/upload-photo/<int:event_id>/", views.upload_photo, name="upload_photo"),
     path("search-face/<int:event_id>/", views.search_face, name="search_face"),
+
+    # Authentication URLs
+    path("login/", views.login_view, name="login"),
 ]

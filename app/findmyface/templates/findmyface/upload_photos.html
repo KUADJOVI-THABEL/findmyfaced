@@ -5,7 +5,7 @@
 {% block content %}
 <!-- Event Header -->
 <div class="mb-8">
-    <a href="#"
+    <a href="{% url 'producer' %}"
         class="inline-flex items-center mb-4 rounded-md px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -133,15 +133,22 @@
         </h3>
 
         {% if photos_error %}
-        <p class="text-red-500">Could not load photos. Please try again.</p>
+        <!-- show error for debug -->
+
+        <p class="text-red-500">Could not load photos. Please try again.
+            {{ photos_error }}
+
+        </p>
         {% endif %}
 
         {% if photos %}
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
             {% for photo in photos %}
-            {% if photo.url %}
+
+
+            {% if photo.file.url %}
             <div class="relative aspect-square rounded-lg overflow-hidden group border">
-                <img src="{{ photo.url }}" alt="{{ photo.file_name|default:'Event photo' }}"
+                <img src="{{ photo.file.url }}" alt="{{ photo.filename|default:'Event photo' }}"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 <div
                     class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -149,9 +156,10 @@
                 </div>
             </div>
             {% else %}
-            <div
-                class="relative aspect-square rounded-lg overflow-hidden border flex items-center justify-center">
-                <p class="text-sm text-gray-500">Failed to load</p>
+            <div class="relative aspect-square rounded-lg overflow-hidden border flex items-center justify-center">
+                <p class="text-sm text-gray-500">Failed to load
+                    {{ photo }}
+                </p>
             </div>
             {% endif %}
             {% endfor %}

@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-# from pgvector.django import VectorField
+from pgvector.django import VectorField
 
 
 class Event(models.Model):
@@ -58,7 +58,7 @@ class FaceEmbedding(models.Model):
         related_name='faces'
     )
     # ArcFace / InsightFace usually use 512 dimensions
-    embedding = models.JSONField()
+    embedding = VectorField(dimensions=512)
     # Face order inside the image
     # example:
     # first face = 0

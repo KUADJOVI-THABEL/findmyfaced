@@ -3,6 +3,11 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+# auths
+from django.contrib.auth import login
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.contrib.auth.hashers import check_password
 # Import models
 from .models import Event, Photo, FaceEmbedding
 # import Forms
@@ -11,16 +16,27 @@ from .producer_forms import EventCreationForm
 def index(request):
     return render(request, 'findmyface/index.html')
 
+# login view
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return render(request, 'registration/login.html', {'error': 'Invalid email or password'})
+
+        if check_password(password, user.password):
+            login(request, user)
+            return redirect('producer')  # Redirect to the homepage after successful login
+        else:
+            return render(request, 'registration/login.html', {'error': 'Invalid email or password'})
+    return render(request, 'registration/login.html')
 
 @login_required
 def get_producer(request):
-    events = [
-        {
-            "event_name": "Event 1",
-            "event_date": "2024-06-01",
-            "event_description": "Location 1"
-        }
-    ]
+    events = Event.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'findmyface/producer.html', {'events': events})
 
 @login_required
@@ -41,6 +57,7 @@ def create_event(request):
                 event_description=form.cleaned_data['event_description'],
                 user=request.user  # Assuming you want to associate the event with the logged-in user
             )
+            print("Event created:", event)
             return redirect('producer')  # Redirect to the producer page after successful creation
         else:
             print("Form errors:", form.errors)
@@ -49,7 +66,7 @@ def create_event(request):
     return render(request, 'findmyface/create_event.html', {'form': form})
 
 # upload_photo view to handle photo uploads for an event
-# @login_required
+@login_required
 def upload_photo(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     if request.method == 'POST':
@@ -66,12 +83,14 @@ def upload_photo(request, event_id):
             
            
         print("Processing file:", uploaded_files)
-            # You can also add logic to create FaceEmbedding objects here if needed
+        # TODO:You can also add logic to create FaceEmbedding objects here if needed
         # Handle photo upload logic here
         # You would typically handle the uploaded file, save it to S3, and create a Photo object in the database
-        pass
-    
-    return render(request, 'findmyface/upload_photos.html', {'event_id': event_id})
+        # redirect to the same page to show the uploaded photos
+        return redirect('upload_photo', event_id=event_id)
+    # Fetch all photos for the event to display on the page
+    photos = event.photos.all()
+    return render(request, 'findmyface/upload_photos.html', {'event_id': event_id , 'photos': photos})
 
 def search_face(request,event_id):
     # Handle face search logic here

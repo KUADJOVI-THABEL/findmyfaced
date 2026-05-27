@@ -10,7 +10,7 @@
 
     <button
         class="flex align-items justify-center rounded-md bg-primary  px-3 py-2 text-sm/6 font-semibold text-white hover:bg-primary/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
-        <a href='#' class="flex items-center gap-2">
+        <a href='{% url "create_event" %}' class="flex items-center gap-2">
             {% lucide "plus" class="h-6 w-6 text-foreground" %} Create New Event
         </a>
 
@@ -49,14 +49,14 @@
 
         <!-- Card Footer / Actions -->
         <div class="p-6 pt-0 grid gap-2">
-            <a href="#"
+            <a href="{%  url 'upload_photo' event.id %}"
                 class="inline-flex items-center justify-center w-full rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 transition-colors dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
                 {% lucide "settings" class="h-4 w-4 mr-2" %}
 
                 Manage Event
             </a>
 
-            <a href="#"
+            <a href="{% url 'search_face' event.id %}"
                 class="inline-flex items-center justify-center w-full rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 transition-colors">
                 {% lucide "search" class="h-4 w-4 mr-2" %}
 
@@ -72,7 +72,7 @@
         <button
             class="flex align-items justify-center rounded-md bg-primary  px-3 py-2 text-sm/6 font-semibold text-white hover:bg-primary/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
 
-            <a href='#' class="flex items-center gap-2">
+            <a href='{% url "create_event" %}' class="flex items-center gap-2">
                 {% lucide "plus" class="h-4 w-4 mr-2" %}
                 Create Event
             </a>
