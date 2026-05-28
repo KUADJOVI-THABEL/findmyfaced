@@ -4,3 +4,5 @@ db.sqlite3
 __pycache__
 NOTES.MD
 app/media/*
+app/aws/*
+awscliv2.zip
