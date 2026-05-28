@@ -1,18 +1,36 @@
 # Basic imports
 import io
+import json
+import json
+import uuid
+import uuid
 import zipfile
+
+import numpy as np
+
 # Create your views here.
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, JsonResponse
 from django.http import FileResponse
+from django.conf import settings
+
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from pgvector import django
+
+from django.views.decorators.csrf import csrf_protect
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
+from pgvector.django import CosineDistance  # Handled by pgvector for vector matching
 
 # auths
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth.hashers import check_password
+
+
+from .utility import get_face_embeddings
 
 # Import models
 from .models import Event, Photo, FaceEmbedding
@@ -25,7 +43,7 @@ def index(request):
     return render(request, "findmyface/index.html")
 
 
-def download_event_photos_zip(request , event_id):
+def download_event_photos_zip(request, event_id):
     # 1. Fetch the photos (adjust the filter to your exact event logic)
     photos = Photo.objects.filter(event_id=event_id)
 
@@ -121,44 +139,174 @@ def create_event(request):
     return render(request, "findmyface/create_event.html", {"form": form})
 
 
-# upload_photo view to handle photo uploads for an event
+@login_required
+def delete_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id, user=request.user)
+    if request.method == "POST":
+        event.delete()
+        return redirect("producer")
+    return render(request, "findmyface/confirm_delete.html", {"event": event})
+
+
 @login_required
 def upload_photo(request, event_id):
     event = get_object_or_404(Event, id=event_id)
+
     if request.method == "POST":
         uploaded_files = request.FILES.getlist("photos")
+        all_photos_created = []
 
-        # Loop through each individual file in the list
+        # 1. Bulk creation/saving of photos
         for file_obj in uploaded_files:
             photo = Photo(
                 event=event,
-                filename=file_obj.name,  # Extracts 'cardboard.png', 'wave.jpg', etc.
-                file=file_obj,  # Triggers the 'get_upload_path' function
+                filename=file_obj.name,
+                file=file_obj,
             )
-            photo.save()  # Saves file payload to Local/S3 and inserts DB record
+            photo.save()  # Triggers upload path logic and commits to DB
+            all_photos_created.append(photo)
 
-        print("Processing file:", uploaded_files)
-        # TODO:You can also add logic to create FaceEmbedding objects here if needed
-        # Handle photo upload logic here
-        # You would typically handle the uploaded file, save it to S3, and create a Photo object in the database
-        # redirect to the same page to show the uploaded photos
+        # Use settings bucket name if defined, otherwise fall back to string
+        IMAGE_BUCKET_NAME = getattr(
+            settings, "AWS_STORAGE_BUCKET_NAME", "your-image-bucket-name"
+        )
+
+        # 2. Extract and store face embeddings
+        for photo in all_photos_created:
+            # Determine image reference based on environment
+            if settings.DEBUG:
+                # Local environment: Use local physical folder path
+                image_ref = photo.file.path
+                is_test = True
+            else:
+                # Production environment: Use S3 object key string
+                image_ref = photo.file.name
+                is_test = False
+
+            # Call your fixed extractor function
+            embeddings = get_face_embeddings(
+                key=image_ref, bucket=IMAGE_BUCKET_NAME, ctx_id=-1, test_mode=is_test
+            )
+
+            if not embeddings:
+                print(f"No faces detected in photo: {photo.filename}")
+                continue
+
+            # 3. Store the embeddings into pgvector DB table
+            face_embeddings_to_create = []
+            for index, embedding in enumerate(embeddings):
+                # Ensure embedding is a standard 1D Python list/array for pgvector
+                if isinstance(embedding, np.ndarray):
+                    embedding_data = embedding.tolist()
+                else:
+                    embedding_data = embedding
+
+                face_embeddings_to_create.append(
+                    FaceEmbedding(
+                        photo=photo,
+                        embedding=embedding_data,
+                        face_index=index,
+                        bbox=None,  # Optional: populate this if your model returns boxes
+                    )
+                )
+
+            # Bulk save faces per photo for optimized database writes
+            if face_embeddings_to_create:
+                FaceEmbedding.objects.bulk_create(face_embeddings_to_create)
+
         return redirect("upload_photo", event_id=event_id)
-    # Fetch all photos for the event to display on the page
+
+    # GET request behavior
     photos = event.photos.all()
     return render(
         request,
         "findmyface/upload_photos.html",
-        {"event_id": event_id, "photos": photos},
+        {"event_id": event_id, "photos": photos, "error_message": None},
     )
 
 
+
+@csrf_protect
 def search_face(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 
-    # Handle face search logic here
     if request.method == "POST":
-        # Process the uploaded photo and perform face search
-        pass
+        uploaded_file = request.FILES.get("photo")
+        if not uploaded_file:
+            return JsonResponse({"error": "No image file provided."}, status=400)
+
+        # 1. Save search file temporarily to feed it into your extractor
+        temp_name = f"temp_search_{uuid.uuid4().hex}_{uploaded_file.name}"
+        saved_path = default_storage.save(
+            f"temp/{temp_name}", ContentFile(uploaded_file.read())
+        )
+
+        # Determine appropriate reference path depending on settings.DEBUG
+        if settings.DEBUG:
+            image_ref = default_storage.path(saved_path)
+            is_test = True
+            bucket_name = "local-dev"
+        else:
+            image_ref = saved_path
+            is_test = False
+            bucket_name = getattr(settings, "AWS_STORAGE_BUCKET_NAME", "")
+
+        try:
+            # 2. Extract embedding from the search target image
+            search_embeddings = get_face_embeddings(
+                key=image_ref, bucket=bucket_name, ctx_id=-1, test_mode=is_test
+            )
+
+            # Clean up the temporary file from storage immediately
+            default_storage.delete(saved_path)
+
+            if not search_embeddings:
+                # Return 200 with empty array so frontend gracefully triggers "no matches"
+                return JsonResponse({"photos": []})
+
+            # For multi-face images, take the primary (first detected) face to search against
+            target_embedding = search_embeddings[0]
+
+            # 3. Query pgvector using Cosine Distance
+            # Threshold 0.4 works well for ArcFace/InsightFace (Lower distance = closer match)
+            MATCH_THRESHOLD = 0.4
+
+            matching_faces = (
+                FaceEmbedding.objects.filter(
+                    photo__event=event,
+                )
+                .annotate(distance=CosineDistance("embedding", target_embedding))
+                .filter(distance__lt=MATCH_THRESHOLD)
+                .select_related("photo")
+                .order_by("distance")
+            )
+
+            # 4. De-duplicate photos (in case multiple faces match the same target photo)
+            seen_photo_ids = set()
+            matched_photos = []
+
+            for face in matching_faces:
+                photo_obj = face.photo
+                if photo_obj.id not in seen_photo_ids:
+                    seen_photo_ids.add(photo_obj.id)
+                    matched_photos.append(
+                        {
+                            "id": photo_obj.id,
+                            "url": photo_obj.file.url,  # Matches photo.url in JS template
+                            "file_name": photo_obj.filename,  # Matches photo.file_name in JS template
+                        }
+                    )
+
+            return JsonResponse({"photos": matched_photos})
+
+        except Exception as e:
+            print("Error during face search:", e)
+            # Fail-safe cleanup
+            if default_storage.exists(saved_path):
+                default_storage.delete(saved_path)
+            return JsonResponse({"error": str(e)}, status=500)
+
+    # Standard GET request handling
     photos = event.photos.all()
     return render(
         request, "findmyface/search_face.html", {"event_id": event_id, "photos": photos}

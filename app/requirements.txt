@@ -4,3 +4,5 @@ pgvector
 boto3
 django-storages
 pillow
+insightface==0.7.3
+onnxruntime==1.23.2

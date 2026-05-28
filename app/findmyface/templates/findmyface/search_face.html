@@ -5,7 +5,7 @@
 <div class="max-w-4xl mx-auto">
 
   <!-- Back Button -->
-  <a href="#"
+  <a href="{% url 'producer' %}"
     class="inline-flex items-center gap-2 mb-4 rounded-md px-3 py-1.5 text-sm font-medium text-primary hover:bg-gray-100 transition-colors">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -139,19 +139,26 @@
   </div>
 
 
-   <!-- Photos Grid -->
+  <!-- Photos Grid -->
   <div class="lg:col-span-2">
     <div class="flex items-center justify-between mb-4 flex-wrap gap-4">
-        <h3 class="text-2xl font-bold tracking-tight">
-            Total Photos ({{ photos|length }})
-        </h3>
-        <!-- Bulk Download ZIP Button (Only shows if photos exist) -->
-        {% if photos %}
-        <a href="{% url 'download_event_photos_zip' event_id=event_id %}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors shadow-sm">
-            <svg xmlns="http://w3.org" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-archive"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><circle cx="12" cy="13" r="3"/><path d="M12 16v5"/></svg>
-            Download All (.zip)
-        </a>
-        {% endif %}
+      <h3 class="text-2xl font-bold tracking-tight">
+        Total Photos ({{ photos|length }})
+      </h3>
+      <!-- Bulk Download ZIP Button (Only shows if photos exist) -->
+      {% if photos %}
+      <a href="{% url 'download_event_photos_zip' event_id=event_id %}"
+        class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg transition-colors shadow-sm">
+        <svg xmlns="http://w3.org" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-folder-archive">
+          <path
+            d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+          <circle cx="12" cy="13" r="3" />
+          <path d="M12 16v5" />
+        </svg>
+        Download All (.zip)
+      </a>
+      {% endif %}
     </div>
 
     {% if photos_error %}
@@ -160,41 +167,49 @@
 
     {% if photos %}
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {% for photo in photos %}
-        {% if photo.file.url %}
-        <div class="relative aspect-square rounded-lg overflow-hidden group border bg-gray-50">
-            <img src="{{ photo.file.url }}" alt="{{ photo.filename|default:'Event photo' }}"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-            
-            <!-- Hover Overlay with Title and Individual Download Button -->
-            <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 text-white">
-                <!-- Top Right: Individual Download Button -->
-                <div class="flex justify-end">
-                    <a href="{{ photo.file.url }}" download="{{ photo.file_name|default:'photo' }}" class="bg-white/20 hover:bg-white/40 p-2 rounded-full transition-colors backdrop-blur-sm" title="Download image">
-                        <svg xmlns="http://w3.org" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                    </a>
-                </div>
-                <!-- Bottom: File Name -->
-                <div class="text-xs truncate font-medium">
-                    {{ photo.file_name }}
-                </div>
-            </div>
+      {% for photo in photos %}
+      {% if photo.file.url %}
+      <div class="relative aspect-square rounded-lg overflow-hidden group border bg-gray-50">
+        <img src="{{ photo.file.url }}" alt="{{ photo.filename|default:'Event photo' }}"
+          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+
+        <!-- Hover Overlay with Title and Individual Download Button -->
+        <div
+          class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 text-white">
+          <!-- Top Right: Individual Download Button -->
+          <div class="flex justify-end">
+            <a href="{{ photo.file.url }}" download="{{ photo.file_name|default:'photo' }}"
+              class="bg-white/20 hover:bg-white/40 p-2 rounded-full transition-colors backdrop-blur-sm"
+              title="Download image">
+              <svg xmlns="http://w3.org" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" x2="12" y1="15" y2="3" />
+              </svg>
+            </a>
+          </div>
+          <!-- Bottom: File Name -->
+          <div class="text-xs truncate font-medium">
+            {{ photo.file_name }}
+          </div>
         </div>
-        {% else %}
-        <div class="relative aspect-square rounded-lg overflow-hidden border flex items-center justify-center bg-gray-50">
-            <p class="text-sm text-gray-400">Failed to load {{ photo }}</p>
-        </div>
-        {% endif %}
-        {% endfor %}
+      </div>
+      {% else %}
+      <div class="relative aspect-square rounded-lg overflow-hidden border flex items-center justify-center bg-gray-50">
+        <p class="text-sm text-gray-400">Failed to load {{ photo }}</p>
+      </div>
+      {% endif %}
+      {% endfor %}
     </div>
     {% elif not photos_error %}
     <p class="text-gray-500 mt-8">No photos have been uploaded for this event yet.</p>
     {% endif %}
-</div>
+  </div>
 
 
 </div>
-
+{{ event_id|json_script:"event-id-data" }}
 <script>
   const fileInput = document.getElementById('file-input');
   const dropZone = document.getElementById('drop-zone');
@@ -268,15 +283,30 @@
 
     resultsCount.textContent = `(${photos.length} match${photos.length > 1 ? 'es' : ''})`;
     resultsGrid.innerHTML = photos.map(photo => `
-      <div class="relative aspect-square rounded-lg overflow-hidden group border border-default">
-        <img src="${photo.url}" alt="${photo.file_name || 'Match'}"
-             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-        <div class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2
-                    opacity-0 group-hover:opacity-100 transition-opacity truncate">
-          ${photo.file_name || ''}
-        </div>
+  <div class="relative aspect-square rounded-lg overflow-hidden group border border-default">
+    <img src="${photo.url}" alt="${photo.file_name || 'Match'}"
+         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-3 text-white">
+      <!-- Top Right: Download Button -->
+      <div class="flex justify-end">
+        <a href="${photo.url}" download="${photo.file_name || 'photo'}"
+           class="bg-white/20 hover:bg-white/40 p-2 rounded-full transition-colors backdrop-blur-sm"
+           title="Download image">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" x2="12" y1="15" y2="3"/>
+          </svg>
+        </a>
       </div>
-    `).join('');
+      <!-- Bottom: File Name -->
+      <div class="text-xs truncate font-medium">
+        ${photo.file_name || ''}
+      </div>
+    </div>
+  </div>
+`).join('');
 
     resultsContent.classList.remove('hidden');
   }
@@ -297,6 +327,7 @@
     setFile(e.dataTransfer.files[0]);
   });
   const eventId = JSON.parse(document.getElementById('event-id-data').textContent);
+
 
   // ── search ────────────────────────────────────────────
   searchBtn.addEventListener('click', async () => {

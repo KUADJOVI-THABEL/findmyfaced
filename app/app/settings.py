@@ -153,7 +153,7 @@ MEDIA_URL = '/media/'
 
 USE_S3 = False  # Set to True to use S3, False to use local storage
 
-if USE_S3:
+if DEBUG == False:
     # 1. AWS S3 Configuration
     STORAGES = {
         "default": {
@@ -179,3 +179,8 @@ else:
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
+# AWS S3 Configuration Setup
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID', 'your-aws-access-key')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', 'your-aws-secret-key')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'your-actual-bucket-name')
+AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
