@@ -102,7 +102,12 @@ def login_view(request):
                 {"error": "Invalid email or password"},
             )
     return render(request, "registration/login.html")
+# logout view
+def logout_view(request):
+    from django.contrib.auth import logout
 
+    logout(request)
+    return redirect("login")  # Redirect to login page after logout
 
 @login_required
 def get_producer(request):

@@ -33,7 +33,7 @@
                     <div>
                         {% if user.is_authenticated %}
 
-                        <form method="post" action="/" class="inline">
+                        <form method="post" action="{% url 'logout' %}" class="inline">
                             {% csrf_token %}
                             <button type="submit"
                                 class="inline-block rounded-sm border px-5 py-1.5 text-lg leading-normal">
