@@ -36,7 +36,7 @@
                         <form method="post" action="{% url 'logout' %}" class="inline">
                             {% csrf_token %}
                             <button type="submit"
-                                class="inline-block rounded-sm border px-5 py-1.5 text-lg leading-normal">
+                                class="inline-block rounded-sm border px-5 py-1.5 text-lg leading-normal hover:cursor-pointer">
                                 Logout
                             </button>
                         </form>
@@ -44,12 +44,12 @@
                         {% else %}
 
                         <a href="{% url 'login' %}"
-                            class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-lg leading-normal">
+                            class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-lg leading-normal hover:cursor-pointer">
                             Log in
                         </a>
 
                         <a href="#"
-                            class="inline-block rounded-sm border px-5 py-1.5 text-lg leading-normal">
+                            class="inline-block rounded-sm border px-5 py-1.5 text-lg leading-normal hover:cursor-pointer">
                             Register
                         </a>
 
