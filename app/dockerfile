@@ -1,29 +1,23 @@
 FROM python:3.11-slim
 
-# Prevent Python from buffering stdout/stderr
-ENV PYTHONUNBUFFERED=1
-
-# Prevent .pyc files
-ENV PYTHONDONTWRITEBYTECODE=1
+# Install system dependencies for OpenCV and ArcFace (using the modern libgl1)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# System dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install python dependencies
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+COPY . .
 
-# Copy project
-COPY app/ .
+# Build-time dummy variables to safely execute collectstatic without a live DB
+RUN SECRET_KEY=build-dummy ALLOWED_HOSTS=localhost DATABASE_URL=postgres://dummy python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["gunicorn", "app.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "3", "--timeout", "300"]
 

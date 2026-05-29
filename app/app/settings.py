@@ -24,12 +24,13 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)$i7%q08t3avw%3-+xy92p*(hxg30v1t=i=jtjqh#gzuxd1y!='
+SECRET_KEY =  os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.environ.get("DEBUG", default=1))
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
 # Application definition
@@ -138,6 +139,15 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+
+# Absolute filesystem path to the directory where collectstatic will collect static files for deployment
+STATIC_ROOT = os.environ.get('STATIC_ROOT', os.path.join(BASE_DIR, 'static'))
+
+# Additional locations of static files (your Tailwind/theme files)
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'theme', 'static'),  # Points to your theme folder listed in your directory
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -145,9 +155,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 TAILWIND_APP_NAME = "theme"
 
 
-LOGIN_REDIRECT_URL = "index"  # Name of the URL pattern to redirect to after login
+LOGIN_REDIRECT_URL = "producer"  # Name of the URL pattern to redirect to after login
 LOGOUT_REDIRECT_URL = "login" # Redirect back to login page after logout
-
+LOGIN_URL = "login"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 

@@ -24,7 +24,7 @@
                 <div class="flex items-center gap-2 justify-between">
 
                     <!-- Logo -->
-                    <a href="/" class="flex gap-2 items-center">
+                    <a href="{% url 'index' %}" class="flex gap-2 items-center">
                         {% lucide "sparkles" class="h-6 w-6 text-primary" %}
                         <h1 class="text-xl font-bold">FaceFind</h1>
                     </a>
@@ -43,7 +43,7 @@
 
                         {% else %}
 
-                        <a href="/"
+                        <a href="{% url 'login' %}"
                             class="inline-block rounded-sm border border-transparent px-5 py-1.5 text-lg leading-normal">
                             Log in
                         </a>
